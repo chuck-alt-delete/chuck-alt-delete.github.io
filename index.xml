@@ -7,6 +7,17 @@
     <generator>Hugo -- gohugo.io</generator>
     <lastBuildDate>Fri, 23 Jul 2021 18:54:05 -0700</lastBuildDate><atom:link href="https://chuck-alt-delete.github.io/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Hello, World!</title>
+      <link>https://chuck-alt-delete.github.io/posts/hello-world/</link>
+      <pubDate>Fri, 23 Jul 2021 18:54:05 -0700</pubDate>
+      
+      <guid>https://chuck-alt-delete.github.io/posts/hello-world/</guid>
+      <description>This is the first post for Chuck+Alt+Delete! Welcome!
+This site has two purposes:
+ &amp;ldquo;learn in public&amp;rdquo; through blog posts host my professional portfolio  Learn in Public </description>
+    </item>
+    
+    <item>
       <title>Portfolio</title>
       <link>https://chuck-alt-delete.github.io/posts/portfolio/</link>
       <pubDate>Fri, 23 Jul 2021 18:54:05 -0700</pubDate>
