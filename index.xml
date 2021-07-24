@@ -1,30 +1,21 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Home</title>
+    <title>Chuck Alt Delete</title>
     <link>https://chuck-alt-delete.github.io/</link>
-    <description>Recent content on Home</description>
-    <generator>Hugo -- gohugo.io</generator><atom:link href="https://chuck-alt-delete.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <description>Recent content on Chuck Alt Delete</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Fri, 23 Jul 2021 18:54:05 -0700</lastBuildDate><atom:link href="https://chuck-alt-delete.github.io/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title></title>
+      <title>Portfolio</title>
       <link>https://chuck-alt-delete.github.io/posts/portfolio/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <pubDate>Fri, 23 Jul 2021 18:54:05 -0700</pubDate>
       
       <guid>https://chuck-alt-delete.github.io/posts/portfolio/</guid>
-      <description>Portfolio Most of my work these last few years has lived in private repositories, so I&amp;rsquo;ve created this site to do more &amp;ldquo;learning out loud&amp;rdquo;
+      <description>Most of my work these last few years has lived in private repositories, so I&amp;rsquo;ve created this site to do more &amp;ldquo;learning in public.&amp;rdquo; I will keep this page updated with exemplars of my work.
 Free Courses As a Senior Curriculum Developer at Confluent, I have written many courses related distributed systems, databases, and stream processing. Most of my courses are only available as a part of a paid subscription, but there are a couple of free samples you can check out.</description>
     </item>
     
-    <item>
-      <title></title>
-      <link>https://chuck-alt-delete.github.io/posts/sample/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://chuck-alt-delete.github.io/posts/sample/</guid>
-      <description>Sample Post Here is a sample post
-blah blah updates
-print(&amp;#39;hello world&amp;#39;) print(&amp;#39;hello world&amp;#39;) code more code </description>
-    </item>
     
     <item>
       <title>Portfolio</title>
@@ -34,7 +25,6 @@ print(&amp;#39;hello world&amp;#39;) print(&amp;#39;hello world&amp;#39;) code m
       <guid>https://chuck-alt-delete.github.io/posts/portfolio/</guid>
       <description>portfolio</description>
     </item>
-    
     
     
   </channel>
