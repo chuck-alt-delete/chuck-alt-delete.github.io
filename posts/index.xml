@@ -5,7 +5,17 @@
     <link>https://chuck-alt-delete.github.io/posts/</link>
     <description>Recent content in Posts on Chuck Alt Delete</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Fri, 23 Jul 2021 18:54:05 -0700</lastBuildDate><atom:link href="https://chuck-alt-delete.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 27 Jul 2021 21:42:46 -0700</lastBuildDate><atom:link href="https://chuck-alt-delete.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>How to prepare for your DevOps Interview</title>
+      <link>https://chuck-alt-delete.github.io/posts/devops-interview/</link>
+      <pubDate>Tue, 27 Jul 2021 21:42:46 -0700</pubDate>
+      
+      <guid>https://chuck-alt-delete.github.io/posts/devops-interview/</guid>
+      <description>Foreword from 2021 I wrote this post for Insight Data Science in 2019. I&amp;rsquo;ve updated it a tiny bit, but it&amp;rsquo;s mostly the same. It was published on Dzone and the Insight Data Science blog:
+ https://dzone.com/articles/how-to-prepare-for-your-devops-interview (40k views!) https://blog.insightdatascience.com/devops-interview-prep-guide-8cd3dc60e587  Introduction Motivation is a great start, but you&amp;rsquo;ll need the discipline to prepare effectively. I&amp;rsquo;ve written this guide to help you develop a disciplined interview preparation routine. Interviewing can really suck - it&amp;rsquo;s random and can make you feel bad about yourself.</description>
+    </item>
+    
     <item>
       <title>Hello, World!</title>
       <link>https://chuck-alt-delete.github.io/posts/hello-world/</link>
