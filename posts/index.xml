@@ -5,7 +5,17 @@
     <link>https://chuck-alt-delete.github.io/posts/</link>
     <description>Recent content in Posts on Chuck Alt Delete</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Tue, 03 Aug 2021 10:46:35 -0700</lastBuildDate><atom:link href="https://chuck-alt-delete.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 14 Sep 2021 10:46:35 -0700</lastBuildDate><atom:link href="https://chuck-alt-delete.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Fun with Ansible&#39;s Docker Connection</title>
+      <link>https://chuck-alt-delete.github.io/posts/ansible-docker/</link>
+      <pubDate>Tue, 14 Sep 2021 10:46:35 -0700</pubDate>
+      
+      <guid>https://chuck-alt-delete.github.io/posts/ansible-docker/</guid>
+      <description>Introduction This lab is modified from one of my courses over at Confluent Education. The course is about using Confluent’s Ansible playbooks, but I had so much fun setting up the lab environment that I thought others would too. This lab environment is cool because you can simulate your own Virtual Private Cloud locally using Ansible’s Docker connection. I hope you have fun!
+   Learning Objectives This lab has two purposes:</description>
+    </item>
+    
     <item>
       <title>Learning DynamoDB</title>
       <link>https://chuck-alt-delete.github.io/posts/dynamo-presentation/</link>
