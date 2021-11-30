@@ -23,7 +23,7 @@
 <link rel="mask-icon" href="https://chuck-alt-delete.github.io/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<meta name="generator" content="Hugo 0.85.0" />
+<meta name="generator" content="Hugo 0.89.4" />
 
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-S20RBCMJWE"></script>
 <script>
@@ -39,11 +39,13 @@ if (!doNotTrack) {
 <meta property="og:description" content="Introduction This lab is modified from one of my courses over at Confluent Education. The course is about using Confluent’s Ansible playbooks, but I had so much fun setting up the lab environment that I thought others would too. This lab environment is cool because you can simulate your own Virtual Private Cloud locally using Ansible’s Docker connection.
  The key to making this work is to use Jeff Geerling’s docker-&lt;distro&gt;-ansible Docker images and mounting the /sys/fs/cgroup into the container." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://chuck-alt-delete.github.io/posts/ansible-docker/" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="https://chuck-alt-delete.github.io/posts/ansible-docker/" />
+<meta property="og:image" content="https://chuck-alt-delete.github.io/images/ansible-docker/ansible-architecture.svg" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-09-14T10:46:35-07:00" />
 <meta property="article:modified_time" content="2021-09-14T10:46:35-07:00" />
 
-<meta name="twitter:card" content="summary"/>
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://chuck-alt-delete.github.io/images/ansible-docker/ansible-architecture.svg" />
 <meta name="twitter:title" content="Fun with Ansible&#39;s Docker Connection"/>
 <meta name="twitter:description" content="Introduction This lab is modified from one of my courses over at Confluent Education. The course is about using Confluent’s Ansible playbooks, but I had so much fun setting up the lab environment that I thought others would too. This lab environment is cool because you can simulate your own Virtual Private Cloud locally using Ansible’s Docker connection.
  The key to making this work is to use Jeff Geerling’s docker-&lt;distro&gt;-ansible Docker images and mounting the /sys/fs/cgroup into the container."/>
@@ -79,10 +81,10 @@ if (!doNotTrack) {
   "keywords": [
     
   ],
-  "articleBody": "Introduction This lab is modified from one of my courses over at Confluent Education. The course is about using Confluent’s Ansible playbooks, but I had so much fun setting up the lab environment that I thought others would too. This lab environment is cool because you can simulate your own Virtual Private Cloud locally using Ansible’s Docker connection.\n The key to making this work is to use Jeff Geerling’s docker--ansible Docker images and mounting the /sys/fs/cgroup into the container. This allows the container to use systemd, making it behave like a VM you might have running in the cloud. Here’s one of Jeff’s ubuntu images, for example.\n Clone my source repository and have fun with the lab!\n   Learning Objectives This lab has two purposes:\n  Have fun with Ansible’s Docker connection to sumulate a Virtual Private Cloud, locally\n  Practice some Ansible fundamentals\n   Here are the Ansible fundamental’s we’ll be looking at:\n       Inventories\n  Playbooks\n     Variables\n  Ansible Vault\n     Modules\n  Roles\n        Lecture Ansible Architecture    Ansible provides an automation engine to configure remote systems at scale. Ansible uses YAML (Yet Another Markup Language) files to provide a straightforward syntax rather than endless bash scripts. Ansible strives to make its configurations idempotent, which means that it can be run multiple times with the same effect as running once. This helps to save time on subsequent runs by skipping tasks that don’t need to be repeated.\n Ansible has a \"push\" architecture. There is a central machine called the Ansible control node (or controller) that has ssh access to a set of target hosts. There are no extra servers, daemons, or databases required.\n Ansible is written in Python, and comes with many built-in Python programs called modules. The Ansible control node establishes an ssh connection to the target hosts, loads the modules onto the hosts, runs them, and then removes them after it is finished.\n There is a vibrant Ansible community that provides much more functionality through the Ansible Galaxy website, including custom modules, roles, and collections.\n    Activity The purpose of this activity is to practice hands-on with a typical Ansible workflow, which includes:\n   Installing Ansible in a Python virtual environment\n  Inspecting a host inventory file with multiple groups\n  Using a module to execute code remotely on an Ansible target host\n  Inspecting playbooks\n  Defining variables under the group_vars directory\n  Encrypting variables with Ansible Vault\n   Prerequisites   Python 3\n  Docker\n  Docker Compose\n  Clone the source repository\n    Install Ansible Ansible is a tool written in Python. It is considered a best practice in Python to install dependencies in a \"virtual environment\" to avoid conflicts with the system’s Python packages. Here, we install Ansible in a Python virtual environment.\n  Create a virtual environment called testenv located in the root of this repo.\npython3 -m venv ./testenv      The -m option specifies a module to run, which in this case is the venv module.       Activate the virtual environment.\nsource ./testenv/bin/activate      The prompt should now show (testenv) to indicate that you are using the virtual environment. We can now use python and pip instead of python3 and pip3, since the virtual environment was created with Python 3. You can verify this with python --version.       Update pip, the Python package manager\npython -m pip install --upgrade pip    Install Ansible with pip\npython -m pip install ansible-core    Install some required \"collections\" with ansible-galaxy, Ansible’s own \"package manager\" of sorts.\nansible-galaxy install -r requirements.yml \u0026\u0026 \\  ansible-galaxy collection list      Collections are public Ansible repositories available on Ansible Galaxy. In this case, the collections have already been installed for you.         Explore a Host Inventory This lab environment uses Docker Compose to simulate virtual machines running in a remote datacenter.\n  Inspect docker-compose.yml and create the hosts host1.test.confluent and host2.test.confluent.\ndocker-compose up -d      The -d option means \"detached\", which means that server logs won’t print to standard output.       Inspect the host inventory file hosts.yml. What do you notice? What do you wonder? Write down a few thoughts and compare to the sample response.\n sample response Ansible uses an inventory file to describe the hosts it will configure. The creator of the inventory file can categorize different hosts into groups and label the groups whatever they want.\n The only group Ansible requires is all, which refers to all hosts defined anywhere in the inventory. The variables (vars) defined under the all group apply to all hosts. This is where ansible_connection, and other global variables are defined. In this case, we use the docker connection to connect to docker hosts, but usually this connection will be ssh.\n In Ansible, become refers to which user is used on the target host. Usually become is set to true and the user is some user with root privileges. This allows the Ansible control node to use elevated privileges to install software.\n This inventory file has two user-defined groups of hosts:\n   atlanta — this group is called \"atlanta\", perhaps to specify that hosts in this group are geographically located in Atlanta\n  boston — again, this group is probably named to denote the geographical region of the hosts\n         Run a Module on the Hosts Ansible uses modules to run programs on remote hosts. There are many modules built into Ansible, and more modules can be installed through Ansible Galaxy collections.\n  Run the ping module against the hosts in the atlanta group.\nansible -m ping \\  -i hosts.yml \\  atlanta      You should see output from the host that responds with \"pong\"       Run the ping module against the hosts in the boston group.\nansible -m ping \\  -i hosts.yml \\  boston    Run the ping module against all hosts.\nansible -m ping \\  -i hosts.yml \\  all      Explore Playbooks In the Ansible world, a playbook is a YAML file that defines what will execute on target hosts.\n  Inspect the file playbook_atlanta.yml. What do you notice? What do you wonder? Write down a few thoughts and compare against the sample response.\n sample response This playbook defines a couple of tasks to be run againsts hosts in the atlanta group. A task specifies a human-readable name, a module, some specifications for the module, and perhaps some task-specific variables.\n There is a variable called awesome_string that is set to the value of another variable, called vault_awesome_string using Jinja variable templating with double brackets — \"{{ …​ }}\". The actual value of the vault_awesome_string variable will be explored in the next section.\n The first task uses the built-in shell module to run a shell command and register the output to a new variable called response.\n The second task uses the debug module to output some contents of the response variable.\n The third task uses the built-in yum module to install the Apache httpd webserver package with the yum package manager.\n     Run the playbook_atlanta.yml playbook against the host inventory\nansible-playbook \\  playbook_atlanta.yml \\  -i hosts.yml      Notice the tasks only ran on hosts in the atlanta group, as specified in the playbook.       Inspect the file playbook_all.yml. What do you notice? What do you wonder? Write down a few thoughts and compare against the sample response.\n sample response   This playbook runs against all hosts instead of just the atlanta hosts\n  The playbook uses inventory_hostname and group_names variables, which are built-in Ansible variables that capture information about each host\n  This playbook imports the other playbook, so playbook_atlanta.yml will run against the hosts in the atlanta group as well\n       Run the playbook_all.yml playbook against the host inventory and notice what happens.\nansible-playbook \\  playbook_all.yml \\  -i hosts.yml      Set Group Variables with group_vars and Encrypt Secrets with Ansible Vault It is common practice to use a group_vars directory to define variables for different groups of hosts. Furthermore, it is important to encrypt variables with sensitive credentials so they aren’t compromised in source control.\n  Notice that there is a directory called group_vars at the same level as the inventory file hosts.yml in `. Further notice that under `group_vars, there is another directory called atlanta. This is no accident. Ansible looks for directories under group_vars whose names correspond to host groups. Any variables defined in YAML files in group_vars/atlanta will be available for hosts in that group.\n  Inspect the file group_vars/atlanta/vault.yml. Notice that this is where the variable vault_awesome_string is defined for hosts in the atlanta group.\n  It is vital to encrypt sensitive credentials so they aren’t exposed in source control. Use Ansible Vault to encrypt vault.yml using the password confluent when prompted.\nansible-vault encrypt group_vars/atlanta/vault.yml      You should now see the contents of vault.yml have been encrypted. If you want to view the unencrypted contents, you can run ansible-vault view group_vars/atlanta/vault.yml.       Run playbook_atlanta.yml on the hosts again, using vault password confluent.\nansible-playbook --ask-vault-pass \\  playbook_atlanta.yml \\  -i hosts.yml      Notice the tasks are able to access the encrypted variables. Note that it is not secure to use the debug module to view encrypted secrets in the task output. This was only done for demonstration purposes. If you want to suppress the output of certain tasks, you can set the built-in no_log variable to True on those tasks.         (Optional) Create a Sample Role Playbooks can get crowded and hard to reason about. Ansible uses the concept of a role to package up related tasks to be shared and referenced in playbooks.\n  Create an Ansible role called sample-role.\nansible-galaxy role init sample-role    Take note of the folder structure and inspect some of the files. This will be discussed more in the activity debrief.\n    Clean Up  Destroy your hosts.\ndocker-compose down        Activity Debrief What is an Ansible Role?  tasks The tasks directory is the most important part of the role. The files in this directory define the tasks that will run on the hosts. When first learning what a role does, it is a good idea to start in this directory.\n    templates Templates generate files that will end up on the hosts. Ansible uses the Jinja templating engine, which enables files to be created with conditional logic and variables. Here is an example of a Jinja template from Ansible Playbooks for Confluent Platform that generates Kafka broker server.properties files:\n server.properties.j2 1 2 3 4 5 # Maintained by CP Ansible {# kafka_broker_final_properties defined in the confluent.variables role #} {% for key, value in kafka_broker_final_properties|dictsort%} {{key}}={{value}} {% endfor %}    Line 1 is text that will appear literally in the server.properties file.\n Line 2 is a Jinja comment, so it won’t appear in the server.properties file.\n Line 3 shows a for loop that iterates through a dictionary and sorts the dictionary with Jinja’s built-in dictsort filter.\n Line 4 puts text in the file according to the values of those variables.\n Line 5 ends the for loop.\n The end result is for several lines of text to appear in the file according the entries in the kafka_broker_final_properties dictionary.\n It is important to note how Jinja uses braces {} to set an execution context and double braces {{}} to reference variables.\n    defaults The values given to variables in this defaults directory are default values that are used if you don’t override them elsewhere. These values have the lowest precendence and are easily overridden. Usually, you assign values to variables in the appropriate group_vars subdirectory alongside your host inventory file, and any variables you didn’t explicitly assign will be given their default values from this defaults directory.\n There is a reference to variable precedence documentation in the References section.\n    handlers The handlers directory is home to special tasks called handlers. A handler is a task that triggers only when the state of something changes. A handler is notified of a change using the notify keyword.\n Here is an example of a task in tasks/main.yml that notifies a handler called restart kafka.\n tasks/main.yml - name: Write Service Overrides template: src: override.conf.j2 dest: \"{{kafka_broker.systemd_override}}\" mode: 0640 owner: \"{{kafka_broker_user}}\" group: \"{{kafka_broker_group}}\" notify: restart kafka   And here is the corresponding handler in the handler directory:\n handlers/main.yml - name: restart kafka systemd: daemon_reload: true name: \"{{kafka_broker_service_name}}\" state: restarted   In this example, the task creates a systemd service override file from a template. If the file doesn’t exist or changes, it notifies the handler named restart kafka. The restart kafka handler uses the systemd module to reload systemd and restart the Kafka service.\n    meta Files in the meta directory provide information about the role itself (metadata). This could include information about the author of the role, the namespace on Ansible Galaxy where you can find the role, role dependencies, and other metadata.\n    tests This directory usually has a sample inventory file, e.g. test-hosts.yml, that points to localhost or hosts in a test environment. The inventory would be alongside a playbook, e.g. test.yml, that calls the role with import_role. Runing the playbook tests the role on the test hosts.\n In practice, many role authors choose to use Ansible Molecule as a testing framework. Ansible Molecule uses Docker to create hosts and test different scenarios. We will see this in a later learning module.\n    Playbooks can get crowded and hard to reason about. Ansible uses the concept of a role to package up related tasks to be shared and referenced in playbooks with an import_role task. Roles are organized into all the parts shown in this slide.\n This is just a brief overview. In later learning modules, you will look at roles in the CP Ansible project in more detail.\n  Discussion Questions  What do the different parts of this Ansible command do?\nansible -m ping \\  -i hosts.yml \\  boston   sample response This command executes the ping module on hosts in the boston group of the hosts.yml inventory file.\n     What do the different parts of this Ansible command do?\nansible-playbook \\  playbook_atlanta.yml \\  -i hosts.yml   sample response This command runs the playbook playbook_atlanta.yml file on hosts in the hosts.yml file.\n     What is the group_vars directory and how does it work to define variables for different groups of hosts?\n sample response Ansible looks for directories under group_vars whose names correspond to host groups defined in a host inventory file.\n Example: Any variables defined in YAML files in the group_vars/all/ directory will be available for all hosts.\n Example: If there is a host group called atlanta, then the variables defined in YAML files in the group_vars/atlanta/ directory will be available for hosts in the atlanta group.\n     What is Ansible Vault and why is it important?\n sample response Ansible Vault refers to the ansible-vault command line utility. Ansible Vault allows you to encrypt files that contain sensitive credentails. This is important because Ansible projects are often source controlled in shared code repositories, and the set of people who have read access to the repository may be different from the set of people who should have access to the sensitive credential.\n The password for a file encrypted with Ansible Vault should be stored securely in a password manager or secure credential storage service like Hashicorp Vault. A common workflow is to authorize the Ansible control node to access relevant Ansible Vault passwords from a credential storage service and then retrieve the passwords at runtime using a password client script.\n         Summary In this module, you practiced hands-on with a typical Ansible workflow:\n   Installing Ansible in a Python virtual environment\n  Inspecting a host inventory file with multiple groups\n  Using a module to execute code remotely on an Ansible target host\n  Inspecting playbooks\n  Defining variables under the group_vars directory\n  Encrypting variables with Ansible Vault\n   With this workflow, you reviewed fundamental Ansible concepts:\n       Inventories\n  Playbooks\n     Variables\n  Ansible Vault\n     Modules\n  Roles\n      References   Ansible documentation\n  YAML Syntax Reference\n  Index of all Ansible modules\n  Ansible Vault documentation\n  Ansible Variable Precedence\n     Ansible Galaxy\n  Comprehensive Ansible 101 video series by Jeff Geerling\n  Ansible for DevOps Examples by Jeff Geerling\n  List of built-in Jinja filters\n      ",
-  "wordCount" : "2581",
+  "articleBody": "Introduction This lab is modified from one of my courses over at Confluent Education. The course is about using Confluent’s Ansible playbooks, but I had so much fun setting up the lab environment that I thought others would too. This lab environment is cool because you can simulate your own Virtual Private Cloud locally using Ansible’s Docker connection.\n The key to making this work is to use Jeff Geerling’s docker--ansible Docker images and mounting the /sys/fs/cgroup into the container. This allows the container to use systemd, making it behave like a VM you might have running in the cloud. Here’s one of Jeff’s ubuntu images, for example.\n Clone my source repository and have fun with the lab!\n   Learning Objectives This lab has two purposes:\n  Have fun with Ansible’s Docker connection to sumulate a Virtual Private Cloud, locally\n  Practice some Ansible fundamentals\n   Here are the Ansible fundamental’s we’ll be looking at:\n     * Inventories * Playbooks * Variables * Ansible Vault * Modules * Roles      Lecture Ansible Architecture    Ansible provides an automation engine to configure remote systems at scale. Ansible uses YAML (Yet Another Markup Language) files to provide a straightforward syntax rather than endless bash scripts. Ansible strives to make its configurations idempotent, which means that it can be run multiple times with the same effect as running once. This helps to save time on subsequent runs by skipping tasks that don’t need to be repeated.\n Ansible has a \"push\" architecture. There is a central machine called the Ansible control node (or controller) that has ssh access to a set of target hosts. There are no extra servers, daemons, or databases required.\n Ansible is written in Python, and comes with many built-in Python programs called modules. The Ansible control node establishes an ssh connection to the target hosts, loads the modules onto the hosts, runs them, and then removes them after it is finished.\n There is a vibrant Ansible community that provides much more functionality through the Ansible Galaxy website, including custom modules, roles, and collections.\n    Activity The purpose of this activity is to practice hands-on with a typical Ansible workflow, which includes:\n   Installing Ansible in a Python virtual environment\n  Inspecting a host inventory file with multiple groups\n  Using a module to execute code remotely on an Ansible target host\n  Inspecting playbooks\n  Defining variables under the group_vars directory\n  Encrypting variables with Ansible Vault\n   Prerequisites   Python 3\n  Docker\n  Docker Compose\n  Clone the source repository\n    Install Ansible Ansible is a tool written in Python. It is considered a best practice in Python to install dependencies in a \"virtual environment\" to avoid conflicts with the system’s Python packages. Here, we install Ansible in a Python virtual environment.\n  Create a virtual environment called testenv located in the root of this repo.\npython3 -m venv ./testenv      The -m option specifies a module to run, which in this case is the venv module.       Activate the virtual environment.\nsource ./testenv/bin/activate      The prompt should now show (testenv) to indicate that you are using the virtual environment. We can now use python and pip instead of python3 and pip3, since the virtual environment was created with Python 3. You can verify this with python --version.       Update pip, the Python package manager\npython -m pip install --upgrade pip    Install Ansible with pip\npython -m pip install ansible-core    Install some required \"collections\" with ansible-galaxy, Ansible’s own \"package manager\" of sorts.\nansible-galaxy install -r requirements.yml \u0026\u0026 \\  ansible-galaxy collection list      Collections are public Ansible repositories available on Ansible Galaxy. In this case, the collections have already been installed for you.         Explore a Host Inventory This lab environment uses Docker Compose to simulate virtual machines running in a remote datacenter.\n  Inspect docker-compose.yml and create the hosts host1.test.confluent and host2.test.confluent.\ndocker-compose up -d      The -d option means \"detached\", which means that server logs won’t print to standard output.       Inspect the host inventory file hosts.yml. What do you notice? What do you wonder? Write down a few thoughts and compare to the sample response.\nExample 1. sample response Ansible uses an inventory file to describe the hosts it will configure. The creator of the inventory file can categorize different hosts into groups and label the groups whatever they want.\n The only group Ansible requires is all, which refers to all hosts defined anywhere in the inventory. The variables (vars) defined under the all group apply to all hosts. This is where ansible_connection, and other global variables are defined. In this case, we use the docker connection to connect to docker hosts, but usually this connection will be ssh.\n In Ansible, become refers to which user is used on the target host. Usually become is set to true and the user is some user with root privileges. This allows the Ansible control node to use elevated privileges to install software.\n This inventory file has two user-defined groups of hosts:\n   atlanta — this group is called \"atlanta\", perhaps to specify that hosts in this group are geographically located in Atlanta\n  boston — again, this group is probably named to denote the geographical region of the hosts\n         Run a Module on the Hosts Ansible uses modules to run programs on remote hosts. There are many modules built into Ansible, and more modules can be installed through Ansible Galaxy collections.\n  Run the ping module against the hosts in the atlanta group.\nansible -m ping \\  -i hosts.yml \\  atlanta      You should see output from the host that responds with \"pong\"       Run the ping module against the hosts in the boston group.\nansible -m ping \\  -i hosts.yml \\  boston    Run the ping module against all hosts.\nansible -m ping \\  -i hosts.yml \\  all      Explore Playbooks In the Ansible world, a playbook is a YAML file that defines what will execute on target hosts.\n  Inspect the file playbook_atlanta.yml. What do you notice? What do you wonder? Write down a few thoughts and compare against the sample response.\nExample 2. sample response This playbook defines a couple of tasks to be run againsts hosts in the atlanta group. A task specifies a human-readable name, a module, some specifications for the module, and perhaps some task-specific variables.\n There is a variable called awesome_string that is set to the value of another variable, called vault_awesome_string using Jinja variable templating with double brackets — \"{{ …​ }}\". The actual value of the vault_awesome_string variable will be explored in the next section.\n The first task uses the built-in shell module to run a shell command and register the output to a new variable called response.\n The second task uses the debug module to output some contents of the response variable.\n The third task uses the built-in yum module to install the Apache httpd webserver package with the yum package manager.\n     Run the playbook_atlanta.yml playbook against the host inventory\nansible-playbook \\  playbook_atlanta.yml \\  -i hosts.yml      Notice the tasks only ran on hosts in the atlanta group, as specified in the playbook.       Inspect the file playbook_all.yml. What do you notice? What do you wonder? Write down a few thoughts and compare against the sample response.\nExample 3. sample response   This playbook runs against all hosts instead of just the atlanta hosts\n  The playbook uses inventory_hostname and group_names variables, which are built-in Ansible variables that capture information about each host\n  This playbook imports the other playbook, so playbook_atlanta.yml will run against the hosts in the atlanta group as well\n       Run the playbook_all.yml playbook against the host inventory and notice what happens.\nansible-playbook \\  playbook_all.yml \\  -i hosts.yml      Set Group Variables with group_vars and Encrypt Secrets with Ansible Vault It is common practice to use a group_vars directory to define variables for different groups of hosts. Furthermore, it is important to encrypt variables with sensitive credentials so they aren’t compromised in source control.\n  Notice that there is a directory called group_vars at the same level as the inventory file hosts.yml in `. Further notice that under `group_vars, there is another directory called atlanta. This is no accident. Ansible looks for directories under group_vars whose names correspond to host groups. Any variables defined in YAML files in group_vars/atlanta will be available for hosts in that group.\n  Inspect the file group_vars/atlanta/vault.yml. Notice that this is where the variable vault_awesome_string is defined for hosts in the atlanta group.\n  It is vital to encrypt sensitive credentials so they aren’t exposed in source control. Use Ansible Vault to encrypt vault.yml using the password confluent when prompted.\nansible-vault encrypt group_vars/atlanta/vault.yml      You should now see the contents of vault.yml have been encrypted. If you want to view the unencrypted contents, you can run ansible-vault view group_vars/atlanta/vault.yml.       Run playbook_atlanta.yml on the hosts again, using vault password confluent.\nansible-playbook --ask-vault-pass \\  playbook_atlanta.yml \\  -i hosts.yml      Notice the tasks are able to access the encrypted variables. Note that it is not secure to use the debug module to view encrypted secrets in the task output. This was only done for demonstration purposes. If you want to suppress the output of certain tasks, you can set the built-in no_log variable to True on those tasks.         (Optional) Create a Sample Role Playbooks can get crowded and hard to reason about. Ansible uses the concept of a role to package up related tasks to be shared and referenced in playbooks.\n  Create an Ansible role called sample-role.\nansible-galaxy role init sample-role    Take note of the folder structure and inspect some of the files. This will be discussed more in the activity debrief.\n    Clean Up  Destroy your hosts.\ndocker-compose down        Activity Debrief What is an Ansible Role? Example 4. tasks The tasks directory is the most important part of the role. The files in this directory define the tasks that will run on the hosts. When first learning what a role does, it is a good idea to start in this directory.\n   Example 5. templates Templates generate files that will end up on the hosts. Ansible uses the Jinja templating engine, which enables files to be created with conditional logic and variables. Here is an example of a Jinja template from Ansible Playbooks for Confluent Platform that generates Kafka broker server.properties files:\n server.properties.j2 # Maintained by CP Ansible {# kafka_broker_final_properties defined in the confluent.variables role #} {% for key, value in kafka_broker_final_properties|dictsort%} {{key}}={{value}} {% endfor %}   Line 1 is text that will appear literally in the server.properties file.\n Line 2 is a Jinja comment, so it won’t appear in the server.properties file.\n Line 3 shows a for loop that iterates through a dictionary and sorts the dictionary with Jinja’s built-in dictsort filter.\n Line 4 puts text in the file according to the values of those variables.\n Line 5 ends the for loop.\n The end result is for several lines of text to appear in the file according the entries in the kafka_broker_final_properties dictionary.\n It is important to note how Jinja uses braces {} to set an execution context and double braces {{}} to reference variables.\n   Example 6. defaults The values given to variables in this defaults directory are default values that are used if you don’t override them elsewhere. These values have the lowest precendence and are easily overridden. Usually, you assign values to variables in the appropriate group_vars subdirectory alongside your host inventory file, and any variables you didn’t explicitly assign will be given their default values from this defaults directory.\n There is a reference to variable precedence documentation in the References section.\n   Example 7. handlers The handlers directory is home to special tasks called handlers. A handler is a task that triggers only when the state of something changes. A handler is notified of a change using the notify keyword.\n Here is an example of a task in tasks/main.yml that notifies a handler called restart kafka.\n tasks/main.yml - name: Write Service Overrides template: src: override.conf.j2 dest: \"{{ kafka_broker.systemd_override }}\" mode: 0640 owner: \"{{kafka_broker_user}}\" group: \"{{kafka_broker_group}}\" notify: restart kafka   And here is the corresponding handler in the handler directory:\n handlers/main.yml - name: restart kafka systemd: daemon_reload: true name: \"{{kafka_broker_service_name}}\" state: restarted   In this example, the task creates a systemd service override file from a template. If the file doesn’t exist or changes, it notifies the handler named restart kafka. The restart kafka handler uses the systemd module to reload systemd and restart the Kafka service.\n   Example 8. meta Files in the meta directory provide information about the role itself (metadata). This could include information about the author of the role, the namespace on Ansible Galaxy where you can find the role, role dependencies, and other metadata.\n   Example 9. tests This directory usually has a sample inventory file, e.g. test-hosts.yml, that points to localhost or hosts in a test environment. The inventory would be alongside a playbook, e.g. test.yml, that calls the role with import_role. Runing the playbook tests the role on the test hosts.\n In practice, many role authors choose to use Ansible Molecule as a testing framework. Ansible Molecule uses Docker to create hosts and test different scenarios. We will see this in a later learning module.\n    Playbooks can get crowded and hard to reason about. Ansible uses the concept of a role to package up related tasks to be shared and referenced in playbooks with an import_role task. Roles are organized into all the parts shown in this slide.\n This is just a brief overview. In later learning modules, you will look at roles in the CP Ansible project in more detail.\n  Discussion Questions  What do the different parts of this Ansible command do?\nansible -m ping \\  -i hosts.yml \\  boston  Example 10. sample response This command executes the ping module on hosts in the boston group of the hosts.yml inventory file.\n     What do the different parts of this Ansible command do?\nansible-playbook \\  playbook_atlanta.yml \\  -i hosts.yml  Example 11. sample response This command runs the playbook playbook_atlanta.yml file on hosts in the hosts.yml file.\n     What is the group_vars directory and how does it work to define variables for different groups of hosts?\nExample 12. sample response Ansible looks for directories under group_vars whose names correspond to host groups defined in a host inventory file.\n Example: Any variables defined in YAML files in the group_vars/all/ directory will be available for all hosts.\n Example: If there is a host group called atlanta, then the variables defined in YAML files in the group_vars/atlanta/ directory will be available for hosts in the atlanta group.\n     What is Ansible Vault and why is it important?\nExample 13. sample response Ansible Vault refers to the ansible-vault command line utility. Ansible Vault allows you to encrypt files that contain sensitive credentails. This is important because Ansible projects are often source controlled in shared code repositories, and the set of people who have read access to the repository may be different from the set of people who should have access to the sensitive credential.\n The password for a file encrypted with Ansible Vault should be stored securely in a password manager or secure credential storage service like Hashicorp Vault. A common workflow is to authorize the Ansible control node to access relevant Ansible Vault passwords from a credential storage service and then retrieve the passwords at runtime using a password client script.\n         Summary In this module, you practiced hands-on with a typical Ansible workflow:\n   Installing Ansible in a Python virtual environment\n  Inspecting a host inventory file with multiple groups\n  Using a module to execute code remotely on an Ansible target host\n  Inspecting playbooks\n  Defining variables under the group_vars directory\n  Encrypting variables with Ansible Vault\n   With this workflow, you reviewed fundamental Ansible concepts:\n     * Inventories * Playbooks * Variables * Ansible Vault * Modules * Roles    References   Ansible documentation\n  YAML Syntax Reference\n  Index of all Ansible modules\n  Ansible Vault documentation\n  Ansible Variable Precedence\n     Ansible Galaxy\n  Comprehensive Ansible 101 video series by Jeff Geerling\n  Ansible for DevOps Examples by Jeff Geerling\n  List of built-in Jinja filters\n      ",
+  "wordCount" : "2616",
   "inLanguage": "en",
-  "datePublished": "2021-09-14T10:46:35-07:00",
+  "image":"https://chuck-alt-delete.github.io/images/ansible-docker/ansible-architecture.svg","datePublished": "2021-09-14T10:46:35-07:00",
   "dateModified": "2021-09-14T10:46:35-07:00",
   "mainEntityOfPage": {
     "@type": "WebPage",
@@ -195,7 +197,10 @@ if (!doNotTrack) {
     </h1>
     <div class="post-meta">September 14, 2021
 </div>
-  </header> <div class="toc">
+  </header> 
+<figure class="entry-cover"><img loading="lazy" src="https://chuck-alt-delete.github.io/images/ansible-docker/ansible-architecture.svg" alt="">
+        
+</figure><div class="toc">
     <details >
         <summary accesskey="c" title="(Alt + C)">
             <div class="details">Table of Contents</div>
@@ -225,9 +230,9 @@ if (!doNotTrack) {
                 <li>
                     <a href="#_explore_playbooks" aria-label="Explore Playbooks">Explore Playbooks</a></li>
                 <li>
-                    <a href="#_set_group_variables_with_group_vars_and_encrypt_secrets_with_ansible_vault" aria-label="Set Group Variables with group_vars and Encrypt Secrets with Ansible Vault">Set Group Variables with <code>group_vars</code> and Encrypt Secrets with Ansible Vault</a></li>
+                    <a href="#_set_group_variables_with_code_group_vars_code_and_encrypt_secrets_with_ansible_vault" aria-label="Set Group Variables with group_vars and Encrypt Secrets with Ansible Vault">Set Group Variables with <code>group_vars</code> and Encrypt Secrets with Ansible Vault</a></li>
                 <li>
-                    <a href="#_optional_create_a_sample_role" aria-label="(Optional) Create a Sample Role">(Optional) Create a Sample Role</a></li>
+                    <a href="#__optional_create_a_sample_role" aria-label="(Optional) Create a Sample Role">(Optional) Create a Sample Role</a></li>
                 <li>
                     <a href="#_clean_up" aria-label="Clean Up">Clean Up</a></li></ul>
                 </li>
@@ -256,13 +261,13 @@ if (!doNotTrack) {
 <h2 id="_introduction">Introduction<a hidden class="anchor" aria-hidden="true" href="#_introduction">#</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This lab is modified from one of my courses over at <a href="https://training.confluent.io/self-userpackage" target="_blank" rel="noopener">Confluent Education</a>. The course is about using Confluent’s Ansible playbooks, but I had so much fun setting up the lab environment that I thought others would too. This lab environment is cool because you can simulate your own Virtual Private Cloud locally using Ansible’s Docker connection.</p>
+<p>This lab is modified from one of my courses over at <a href="https://training.confluent.io/self-userpackage" target="_blank">Confluent Education</a>. The course is about using Confluent’s Ansible playbooks, but I had so much fun setting up the lab environment that I thought others would too. This lab environment is cool because you can simulate your own Virtual Private Cloud locally using Ansible’s Docker connection.</p>
 </div>
 <div class="paragraph">
 <p>The key to making this work is to use Jeff Geerling’s <code>docker-&lt;distro&gt;-ansible</code> Docker images and mounting the <code>/sys/fs/cgroup</code> into the container. This allows the container to use <code>systemd</code>, making it behave like a VM you might have running in the cloud. Here’s one of Jeff’s <a href="https://hub.docker.com/r/geerlingguy/docker-ubuntu1804-ansible">ubuntu</a> images, for example.</p>
 </div>
 <div class="paragraph">
-<p>Clone my <a href="https://github.com/chuck-alt-delete/ansible-docker" target="_blank" rel="noopener">source repository</a> and have fun with the lab!</p>
+<p>Clone my <a href="https://github.com/chuck-alt-delete/ansible-docker" target="_blank">source repository</a> and have fun with the lab!</p>
 </div>
 </div>
 </div>
@@ -285,46 +290,22 @@ if (!doNotTrack) {
 <div class="paragraph">
 <p>Here are the Ansible fundamental’s we’ll be looking at:</p>
 </div>
-<table class="tableblock frame-none grid-none stretch">
+<table class="tableblock frame-none grid-none spread">
 <colgroup>
 <col style="width: 33.3333%;"/>
 <col style="width: 33.3333%;"/>
 <col style="width: 33.3334%;"/>
 </colgroup>
-<tbody>
+<thead>
 <tr>
-<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
-<ul>
-<li>
-<p>Inventories</p>
-</li>
-<li>
-<p>Playbooks</p>
-</li>
-</ul>
-</div></div></td>
-<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
-<ul>
-<li>
-<p>Variables</p>
-</li>
-<li>
-<p>Ansible Vault</p>
-</li>
-</ul>
-</div></div></td>
-<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
-<ul>
-<li>
-<p>Modules</p>
-</li>
-<li>
-<p>Roles</p>
-</li>
-</ul>
-</div></div></td>
+<th class="tableblock halign-left valign-top">* Inventories
+* Playbooks</th>
+<th class="tableblock halign-left valign-top">* Variables
+* Ansible Vault</th>
+<th class="tableblock halign-left valign-top">* Modules
+* Roles</th>
 </tr>
-</tbody>
+</thead>
 </table>
 </div>
 </div>
@@ -349,7 +330,7 @@ if (!doNotTrack) {
 <p>Ansible is written in Python, and comes with many built-in Python programs called <strong>modules</strong>. The Ansible control node establishes an <code>ssh</code> connection to the target hosts, loads the modules onto the hosts, runs them, and then removes them after it is finished.</p>
 </div>
 <div class="paragraph">
-<p>There is a vibrant Ansible community that provides much more functionality through the <a href="https://galaxy.ansible.com/" target="_blank" rel="noopener">Ansible Galaxy website</a>, including custom modules, roles, and collections.</p>
+<p>There is a vibrant Ansible community that provides much more functionality through the <a href="https://galaxy.ansible.com/" target="_blank">Ansible Galaxy website</a>, including custom modules, roles, and collections.</p>
 </div>
 </div>
 </div>
@@ -396,7 +377,7 @@ if (!doNotTrack) {
 <p>Docker Compose</p>
 </li>
 <li>
-<p>Clone the <a href="https://github.com/chuck-alt-delete/ansible-docker" target="_blank" rel="noopener">source repository</a></p>
+<p>Clone the <a href="https://github.com/chuck-alt-delete/ansible-docker" target="_blank">source repository</a></p>
 </li>
 </ul>
 </div>
@@ -411,7 +392,7 @@ if (!doNotTrack) {
 <li>
 <p>Create a virtual environment called <code>testenv</code> located in the root of this repo.</p>
 <div class="paragraph">
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">python3 -m venv ./testenv</code></pre></div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">python3 -m venv ./testenv</code></pre></div>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -429,7 +410,7 @@ The <code>-m</code> option specifies a module to run, which in this case is the 
 <li>
 <p>Activate the virtual environment.</p>
 <div class="paragraph">
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">source ./testenv/bin/activate</code></pre></div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">source ./testenv/bin/activate</code></pre></div>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -447,19 +428,19 @@ The prompt should now show <code>(testenv)</code> to indicate that you are using
 <li>
 <p>Update <code>pip</code>, the Python package manager</p>
 <div class="paragraph">
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">python -m pip install --upgrade pip</code></pre></div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">python -m pip install --upgrade pip</code></pre></div>
 </div>
 </li>
 <li>
 <p>Install Ansible with <code>pip</code></p>
 <div class="paragraph">
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">python -m pip install ansible-core</code></pre></div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">python -m pip install ansible-core</code></pre></div>
 </div>
 </li>
 <li>
 <p>Install some required &#34;collections&#34; with <code>ansible-galaxy</code>, Ansible’s own &#34;package manager&#34; of sorts.</p>
 <div class="paragraph">
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-galaxy install -r requirements.yml <span style="color:#f92672">&amp;&amp;</span> <span style="color:#ae81ff">\
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-galaxy install -r requirements.yml <span style="color:#f92672">&amp;&amp;</span> <span style="color:#ae81ff">\
 </span><span style="color:#ae81ff"></span>    ansible-galaxy collection list</code></pre></div>
 </div>
 <div class="admonitionblock note">
@@ -488,7 +469,7 @@ Collections are public Ansible repositories available on Ansible Galaxy. In this
 <li>
 <p>Inspect <code>docker-compose.yml</code> and create the hosts <code>host1.test.confluent</code> and <code>host2.test.confluent</code>.</p>
 <div class="paragraph">
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">docker-compose up -d</code></pre></div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">docker-compose up -d</code></pre></div>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -505,8 +486,8 @@ The <code>-d</code> option means &#34;detached&#34;, which means that server log
 </li>
 <li>
 <p>Inspect the host inventory file <code>hosts.yml</code>. What do you notice? What do you wonder? Write down a few thoughts and compare to the sample response.</p>
-<details>
-<summary class="title">sample response</summary>
+<div class="exampleblock">
+<div class="title">Example 1. sample response</div>
 <div class="content">
 <div class="paragraph">
 <p>Ansible uses an inventory file to describe the hosts it will configure. The creator of the inventory file can categorize different hosts into <strong>groups</strong> and label the groups whatever they want.</p>
@@ -531,7 +512,7 @@ The <code>-d</code> option means &#34;detached&#34;, which means that server log
 </ul>
 </div>
 </div>
-</details>
+</div>
 </li>
 </ol>
 </div>
@@ -546,7 +527,7 @@ The <code>-d</code> option means &#34;detached&#34;, which means that server log
 <li>
 <p>Run the <code>ping</code> module against the hosts in the <code>atlanta</code> group.</p>
 <div class="paragraph">
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible -m ping <span style="color:#ae81ff">\
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible -m ping <span style="color:#ae81ff">\
 </span><span style="color:#ae81ff"></span>    -i hosts.yml <span style="color:#ae81ff">\
 </span><span style="color:#ae81ff"></span>    atlanta</code></pre></div>
 </div>
@@ -566,7 +547,7 @@ You should see output from the host that responds with &#34;pong&#34;
 <li>
 <p>Run the <code>ping</code> module against the hosts in the <code>boston</code> group.</p>
 <div class="paragraph">
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible -m ping <span style="color:#ae81ff">\
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible -m ping <span style="color:#ae81ff">\
 </span><span style="color:#ae81ff"></span>    -i hosts.yml <span style="color:#ae81ff">\
 </span><span style="color:#ae81ff"></span>    boston</code></pre></div>
 </div>
@@ -574,7 +555,7 @@ You should see output from the host that responds with &#34;pong&#34;
 <li>
 <p>Run the <code>ping</code> module against all hosts.</p>
 <div class="paragraph">
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible -m ping <span style="color:#ae81ff">\
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible -m ping <span style="color:#ae81ff">\
 </span><span style="color:#ae81ff"></span>    -i hosts.yml <span style="color:#ae81ff">\
 </span><span style="color:#ae81ff"></span>    all</code></pre></div>
 </div>
@@ -591,8 +572,8 @@ You should see output from the host that responds with &#34;pong&#34;
 <ol class="arabic">
 <li>
 <p>Inspect the file <code>playbook_atlanta.yml</code>. What do you notice? What do you wonder? Write down a few thoughts and compare against the sample response.</p>
-<details>
-<summary class="title">sample response</summary>
+<div class="exampleblock">
+<div class="title">Example 2. sample response</div>
 <div class="content">
 <div class="paragraph">
 <p>This playbook defines a couple of <strong>tasks</strong> to be run againsts hosts in the <code>atlanta</code> group. A <strong>task</strong> specifies a human-readable name, a module, some specifications for the module, and perhaps some task-specific variables.</p>
@@ -610,12 +591,12 @@ You should see output from the host that responds with &#34;pong&#34;
 <p>The third task uses the built-in yum module to install the Apache httpd webserver package with the yum package manager.</p>
 </div>
 </div>
-</details>
+</div>
 </li>
 <li>
 <p>Run the <code>playbook_atlanta.yml</code> playbook against the host inventory</p>
 <div class="paragraph">
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-playbook <span style="color:#ae81ff">\
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-playbook <span style="color:#ae81ff">\
 </span><span style="color:#ae81ff"></span>    playbook_atlanta.yml <span style="color:#ae81ff">\
 </span><span style="color:#ae81ff"></span>    -i hosts.yml</code></pre></div>
 </div>
@@ -634,8 +615,8 @@ Notice the tasks only ran on hosts in the <code>atlanta</code> group, as specifi
 </li>
 <li>
 <p>Inspect the file <code>playbook_all.yml</code>. What do you notice? What do you wonder? Write down a few thoughts and compare against the sample response.</p>
-<details>
-<summary class="title">sample response</summary>
+<div class="exampleblock">
+<div class="title">Example 3. sample response</div>
 <div class="content">
 <div class="ulist">
 <ul>
@@ -651,12 +632,12 @@ Notice the tasks only ran on hosts in the <code>atlanta</code> group, as specifi
 </ul>
 </div>
 </div>
-</details>
+</div>
 </li>
 <li>
 <p>Run the <code>playbook_all.yml</code> playbook against the host inventory and notice what happens.</p>
 <div class="paragraph">
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-playbook <span style="color:#ae81ff">\
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-playbook <span style="color:#ae81ff">\
 </span><span style="color:#ae81ff"></span>    playbook_all.yml <span style="color:#ae81ff">\
 </span><span style="color:#ae81ff"></span>    -i hosts.yml</code></pre></div>
 </div>
@@ -665,7 +646,7 @@ Notice the tasks only ran on hosts in the <code>atlanta</code> group, as specifi
 </div>
 </div>
 <div class="sect2">
-<h3 id="_set_group_variables_with_group_vars_and_encrypt_secrets_with_ansible_vault">Set Group Variables with <code>group_vars</code> and Encrypt Secrets with Ansible Vault<a hidden class="anchor" aria-hidden="true" href="#_set_group_variables_with_group_vars_and_encrypt_secrets_with_ansible_vault">#</a></h3>
+<h3 id="_set_group_variables_with_code_group_vars_code_and_encrypt_secrets_with_ansible_vault">Set Group Variables with <code>group_vars</code> and Encrypt Secrets with Ansible Vault<a hidden class="anchor" aria-hidden="true" href="#_set_group_variables_with_code_group_vars_code_and_encrypt_secrets_with_ansible_vault">#</a></h3>
 <div class="paragraph">
 <p>It is common practice to use a <code>group_vars</code> directory to define variables for different groups of hosts. Furthermore, it is important to encrypt variables with sensitive credentials so they aren’t compromised in source control.</p>
 </div>
@@ -680,7 +661,7 @@ Notice the tasks only ran on hosts in the <code>atlanta</code> group, as specifi
 <li>
 <p>It is vital to encrypt sensitive credentials so they aren’t exposed in source control. Use Ansible Vault to encrypt <code>vault.yml</code> using the password <strong>confluent</strong> when prompted.</p>
 <div class="paragraph">
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-vault encrypt group_vars/atlanta/vault.yml</code></pre></div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-vault encrypt group_vars/atlanta/vault.yml</code></pre></div>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -698,7 +679,7 @@ You should now see the contents of <code>vault.yml</code> have been encrypted. I
 <li>
 <p>Run <code>playbook_atlanta.yml</code> on the hosts again, using vault password <strong>confluent</strong>.</p>
 <div class="paragraph">
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-playbook --ask-vault-pass <span style="color:#ae81ff">\
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-playbook --ask-vault-pass <span style="color:#ae81ff">\
 </span><span style="color:#ae81ff"></span>    playbook_atlanta.yml <span style="color:#ae81ff">\
 </span><span style="color:#ae81ff"></span>    -i hosts.yml</code></pre></div>
 </div>
@@ -719,7 +700,7 @@ Notice the tasks are able to access the encrypted variables. Note that it is not
 </div>
 </div>
 <div class="sect2">
-<h3 id="_optional_create_a_sample_role">(Optional) Create a Sample Role<a hidden class="anchor" aria-hidden="true" href="#_optional_create_a_sample_role">#</a></h3>
+<h3 id="__optional_create_a_sample_role">(Optional) Create a Sample Role<a hidden class="anchor" aria-hidden="true" href="#__optional_create_a_sample_role">#</a></h3>
 <div class="paragraph">
 <p>Playbooks can get crowded and hard to reason about. Ansible uses the concept of a <strong>role</strong> to package up related tasks to be shared and referenced in playbooks.</p>
 </div>
@@ -728,7 +709,7 @@ Notice the tasks are able to access the encrypted variables. Note that it is not
 <li>
 <p>Create an Ansible role called <code>sample-role</code>.</p>
 <div class="paragraph">
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-galaxy role init sample-role</code></pre></div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-galaxy role init sample-role</code></pre></div>
 </div>
 </li>
 <li>
@@ -744,7 +725,7 @@ Notice the tasks are able to access the encrypted variables. Note that it is not
 <li>
 <p>Destroy your hosts.</p>
 <div class="paragraph">
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">docker-compose down</code></pre></div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">docker-compose down</code></pre></div>
 </div>
 </li>
 </ol>
@@ -757,16 +738,16 @@ Notice the tasks are able to access the encrypted variables. Note that it is not
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_what_is_an_ansible_role">What is an Ansible Role?<a hidden class="anchor" aria-hidden="true" href="#_what_is_an_ansible_role">#</a></h3>
-<details>
-<summary class="title">tasks</summary>
+<div class="exampleblock">
+<div class="title">Example 4. tasks</div>
 <div class="content">
 <div class="paragraph">
 <p>The tasks directory is the most important part of the role. The files in this directory define the tasks that will run on the hosts. When first learning what a role does, it is a good idea to start in this directory.</p>
 </div>
 </div>
-</details>
-<details>
-<summary class="title">templates</summary>
+</div>
+<div class="exampleblock">
+<div class="title">Example 5. templates</div>
 <div class="content">
 <div class="paragraph">
 <p>Templates generate files that will end up on the hosts. Ansible uses the Jinja templating engine, which enables files to be created with conditional logic and variables. Here is an example of a Jinja template from Ansible Playbooks for Confluent Platform that generates Kafka broker <code>server.properties</code> files:</p>
@@ -774,17 +755,11 @@ Notice the tasks are able to access the encrypted variables. Note that it is not
 <div class="listingblock">
 <div class="title">server.properties.j2</div>
 <div class="content">
-<pre class="rouge highlight nowrap"><code data-lang="jinja"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
-2
-3
-4
-5
-</pre></td><td class="code"><pre># Maintained by CP Ansible
-<span class="c">{# kafka_broker_final_properties defined in the confluent.variables role #}</span>
-<span class="cp">{%</span> <span class="k">for</span> <span class="nv">key</span><span class="p">,</span> <span class="nv">value</span> <span class="ow">in</span> <span class="nv">kafka_broker_final_properties</span><span class="o">|</span><span class="nf">dictsort</span><span class="cp">%}</span>
-<span class="cp">{{</span><span class="nv">key</span><span class="cp">}}</span>=<span class="cp">{{</span><span class="nv">value</span><span class="cp">}}</span>
-<span class="cp">{%</span> <span class="k">endfor</span> <span class="cp">%}</span>
-</pre></td></tr></tbody></table></code></pre>
+<pre class="highlight nowrap"><code class="language-jinja" data-lang="jinja"># Maintained by CP Ansible
+{# kafka_broker_final_properties defined in the confluent.variables role #}
+{% for key, value in kafka_broker_final_properties|dictsort%}
+{{key}}={{value}}
+{% endfor %}</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -809,9 +784,9 @@ Notice the tasks are able to access the encrypted variables. Note that it is not
 <p>It is important to note how Jinja uses braces <code>{}</code> to set an execution context and double braces <code>{{}}</code> to reference variables.</p>
 </div>
 </div>
-</details>
-<details>
-<summary class="title">defaults</summary>
+</div>
+<div class="exampleblock">
+<div class="title">Example 6. defaults</div>
 <div class="content">
 <div class="paragraph">
 <p>The values given to variables in this <code>defaults</code> directory are default values that are used if you don’t override them elsewhere. These values have the lowest precendence and are easily overridden. Usually, you assign values to variables in the appropriate <code>group_vars</code> subdirectory alongside your host inventory file, and any variables you didn’t explicitly assign will be given their default values from this <code>defaults</code> directory.</p>
@@ -820,9 +795,9 @@ Notice the tasks are able to access the encrypted variables. Note that it is not
 <p>There is a reference to variable precedence documentation in the <a href="#_references">References</a> section.</p>
 </div>
 </div>
-</details>
-<details>
-<summary class="title">handlers</summary>
+</div>
+<div class="exampleblock">
+<div class="title">Example 7. handlers</div>
 <div class="content">
 <div class="paragraph">
 <p>The <code>handlers</code> directory is home to special tasks called <strong>handlers</strong>. A handler is a task that triggers only when the state of something changes. A handler is notified of a change using the <code>notify</code> keyword.</p>
@@ -833,14 +808,14 @@ Notice the tasks are able to access the encrypted variables. Note that it is not
 <div class="listingblock">
 <div class="title">tasks/main.yml</div>
 <div class="content">
-<pre class="rouge highlight"><code data-lang="yml"><span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">Write Service Overrides</span>
-  <span class="na">template</span><span class="pi">:</span>
-    <span class="na">src</span><span class="pi">:</span> <span class="s">override.conf.j2</span>
-    <span class="na">dest</span><span class="pi">:</span> <span class="s2">&#34;</span><span class="s">{{</span><span class="nv"> </span><span class="s">kafka_broker.systemd_override</span><span class="nv"> </span><span class="s">}}&#34;</span>
-    <span class="na">mode</span><span class="pi">:</span> <span class="m">0640</span>
-    <span class="na">owner</span><span class="pi">:</span> <span class="s2">&#34;</span><span class="s">{{kafka_broker_user}}&#34;</span>
-    <span class="na">group</span><span class="pi">:</span> <span class="s2">&#34;</span><span class="s">{{kafka_broker_group}}&#34;</span>
-  <span class="na">notify</span><span class="pi">:</span> <span class="s">restart kafka</span></code></pre>
+<pre class="highlight"><code class="language-yml" data-lang="yml">- name: Write Service Overrides
+  template:
+    src: override.conf.j2
+    dest: &#34;{{ kafka_broker.systemd_override }}&#34;
+    mode: 0640
+    owner: &#34;{{kafka_broker_user}}&#34;
+    group: &#34;{{kafka_broker_group}}&#34;
+  notify: restart kafka</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -849,28 +824,28 @@ Notice the tasks are able to access the encrypted variables. Note that it is not
 <div class="listingblock">
 <div class="title">handlers/main.yml</div>
 <div class="content">
-<pre class="rouge highlight"><code data-lang="yml"><span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">restart kafka</span>
-  <span class="na">systemd</span><span class="pi">:</span>
-    <span class="na">daemon_reload</span><span class="pi">:</span> <span class="no">true</span>
-    <span class="na">name</span><span class="pi">:</span> <span class="s2">&#34;</span><span class="s">{{kafka_broker_service_name}}&#34;</span>
-    <span class="na">state</span><span class="pi">:</span> <span class="s">restarted</span></code></pre>
+<pre class="highlight"><code class="language-yml" data-lang="yml">- name: restart kafka
+  systemd:
+    daemon_reload: true
+    name: &#34;{{kafka_broker_service_name}}&#34;
+    state: restarted</code></pre>
 </div>
 </div>
 <div class="paragraph">
 <p>In this example, the task creates a systemd service override file from a template. If the file doesn’t exist or changes, it notifies the handler named <code>restart kafka</code>. The <code>restart kafka</code> handler uses the systemd module to reload systemd and restart the Kafka service.</p>
 </div>
 </div>
-</details>
-<details>
-<summary class="title">meta</summary>
+</div>
+<div class="exampleblock">
+<div class="title">Example 8. meta</div>
 <div class="content">
 <div class="paragraph">
 <p>Files in the <code>meta</code> directory provide information about the role itself (metadata). This could include information about the author of the role, the namespace on Ansible Galaxy where you can find the role, role dependencies, and other metadata.</p>
 </div>
 </div>
-</details>
-<details>
-<summary class="title">tests</summary>
+</div>
+<div class="exampleblock">
+<div class="title">Example 9. tests</div>
 <div class="content">
 <div class="paragraph">
 <p>This directory usually has a sample inventory file, e.g. <code>test-hosts.yml</code>, that points to localhost or hosts in a test environment. The inventory would be alongside a playbook, e.g. <code>test.yml</code>, that calls the role with <code>import_role</code>. Runing the playbook tests the role on the test hosts.</p>
@@ -879,7 +854,7 @@ Notice the tasks are able to access the encrypted variables. Note that it is not
 <p>In practice, many role authors choose to use Ansible Molecule as a testing framework. Ansible Molecule uses Docker to create hosts and test different scenarios. We will see this in a later learning module.</p>
 </div>
 </div>
-</details>
+</div>
 <hr/>
 <div class="paragraph">
 <p>Playbooks can get crowded and hard to reason about. Ansible uses the concept of a <strong>role</strong> to package up related tasks to be shared and referenced in playbooks with an <code>import_role</code> task. Roles are organized into all the parts shown in this slide.</p>
@@ -895,39 +870,39 @@ Notice the tasks are able to access the encrypted variables. Note that it is not
 <li>
 <p>What do the different parts of this Ansible command do?</p>
 <div class="paragraph">
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible -m ping <span style="color:#ae81ff">\
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible -m ping <span style="color:#ae81ff">\
 </span><span style="color:#ae81ff"></span>    -i hosts.yml <span style="color:#ae81ff">\
 </span><span style="color:#ae81ff"></span>    boston</code></pre></div>
 </div>
-<details>
-<summary class="title">sample response</summary>
+<div class="exampleblock">
+<div class="title">Example 10. sample response</div>
 <div class="content">
 <div class="paragraph">
 <p>This command executes the <code>ping</code> module on hosts in the <code>boston</code> group of the <code>hosts.yml</code> inventory file.</p>
 </div>
 </div>
-</details>
+</div>
 </li>
 <li>
 <p>What do the different parts of this Ansible command do?</p>
 <div class="paragraph">
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-playbook <span style="color:#ae81ff">\
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-playbook <span style="color:#ae81ff">\
 </span><span style="color:#ae81ff"></span>    playbook_atlanta.yml <span style="color:#ae81ff">\
 </span><span style="color:#ae81ff"></span>    -i hosts.yml</code></pre></div>
 </div>
-<details>
-<summary class="title">sample response</summary>
+<div class="exampleblock">
+<div class="title">Example 11. sample response</div>
 <div class="content">
 <div class="paragraph">
 <p>This command runs the playbook <code>playbook_atlanta.yml</code> file on hosts in the <code>hosts.yml</code> file.</p>
 </div>
 </div>
-</details>
+</div>
 </li>
 <li>
 <p>What is the <code>group_vars</code> directory and how does it work to define variables for different groups of hosts?</p>
-<details>
-<summary class="title">sample response</summary>
+<div class="exampleblock">
+<div class="title">Example 12. sample response</div>
 <div class="content">
 <div class="paragraph">
 <p>Ansible looks for directories under <code>group_vars</code> whose names correspond to host groups defined in a host inventory file.</p>
@@ -939,21 +914,21 @@ Notice the tasks are able to access the encrypted variables. Note that it is not
 <p>Example: If there is a host group called <code>atlanta</code>, then the variables defined in YAML files in the <code>group_vars/atlanta/</code> directory will be available for hosts in the <code>atlanta</code> group.</p>
 </div>
 </div>
-</details>
+</div>
 </li>
 <li>
 <p>What is Ansible Vault and why is it important?</p>
-<details>
-<summary class="title">sample response</summary>
+<div class="exampleblock">
+<div class="title">Example 13. sample response</div>
 <div class="content">
 <div class="paragraph">
 <p>Ansible Vault refers to the <code>ansible-vault</code> command line utility. Ansible Vault allows you to encrypt files that contain sensitive credentails. This is important because Ansible projects are often source controlled in shared code repositories, and the set of people who have read access to the repository may be different from the set of people who should have access to the sensitive credential.</p>
 </div>
 <div class="paragraph">
-<p>The password for a file encrypted with Ansible Vault should be stored securely in a password manager or secure credential storage service like Hashicorp Vault. A common workflow is to authorize the Ansible control node to access relevant Ansible Vault passwords from a credential storage service and then retrieve the passwords at runtime using a <a href="https://docs.ansible.com/ansible/latest/user_guide/vault.html#storing-passwords-in-third-party-tools-with-vault-password-client-scripts" target="_blank" rel="noopener">password client script</a>.</p>
+<p>The password for a file encrypted with Ansible Vault should be stored securely in a password manager or secure credential storage service like Hashicorp Vault. A common workflow is to authorize the Ansible control node to access relevant Ansible Vault passwords from a credential storage service and then retrieve the passwords at runtime using a <a href="https://docs.ansible.com/ansible/latest/user_guide/vault.html#storing-passwords-in-third-party-tools-with-vault-password-client-scripts" target="_blank">password client script</a>.</p>
 </div>
 </div>
-</details>
+</div>
 </li>
 </ol>
 </div>
@@ -991,72 +966,48 @@ Notice the tasks are able to access the encrypted variables. Note that it is not
 <div class="paragraph">
 <p>With this workflow, you reviewed fundamental Ansible concepts:</p>
 </div>
-<table class="tableblock frame-none grid-none stretch">
+<table class="tableblock frame-none grid-none spread">
 <colgroup>
 <col style="width: 33.3333%;"/>
 <col style="width: 33.3333%;"/>
 <col style="width: 33.3334%;"/>
 </colgroup>
-<tbody>
+<thead>
 <tr>
-<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
-<ul>
-<li>
-<p>Inventories</p>
-</li>
-<li>
-<p>Playbooks</p>
-</li>
-</ul>
-</div></div></td>
-<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
-<ul>
-<li>
-<p>Variables</p>
-</li>
-<li>
-<p>Ansible Vault</p>
-</li>
-</ul>
-</div></div></td>
-<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
-<ul>
-<li>
-<p>Modules</p>
-</li>
-<li>
-<p>Roles</p>
-</li>
-</ul>
-</div></div></td>
+<th class="tableblock halign-left valign-top">* Inventories
+* Playbooks</th>
+<th class="tableblock halign-left valign-top">* Variables
+* Ansible Vault</th>
+<th class="tableblock halign-left valign-top">* Modules
+* Roles</th>
 </tr>
-</tbody>
+</thead>
 </table>
 <div class="sect2">
 <h3 id="_references">References<a hidden class="anchor" aria-hidden="true" href="#_references">#</a></h3>
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://docs.ansible.com/ansible/latest/index.html" target="_blank" rel="noopener">Ansible documentation</a></p>
+<p><a href="https://docs.ansible.com/ansible/latest/index.html" target="_blank">Ansible documentation</a></p>
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://docs.ansible.com/ansible/latest/reference_appendices/YAMLSyntax.html" target="_blank" rel="noopener">YAML Syntax Reference</a></p>
+<p><a href="https://docs.ansible.com/ansible/latest/reference_appendices/YAMLSyntax.html" target="_blank">YAML Syntax Reference</a></p>
 </li>
 <li>
-<p><a href="https://docs.ansible.com/ansible/latest/collections/index_module.html" target="_blank" rel="noopener">Index of all Ansible modules</a></p>
+<p><a href="https://docs.ansible.com/ansible/latest/collections/index_module.html" target="_blank">Index of all Ansible modules</a></p>
 </li>
 <li>
-<p><a href="https://docs.ansible.com/ansible/latest/user_guide/vault.html" target="_blank" rel="noopener">Ansible Vault documentation</a></p>
+<p><a href="https://docs.ansible.com/ansible/latest/user_guide/vault.html" target="_blank">Ansible Vault documentation</a></p>
 </li>
 <li>
-<p><a href="https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html#understanding-variable-precedence" target="_blank" rel="noopener">Ansible Variable Precedence</a></p>
+<p><a href="https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html#understanding-variable-precedence" target="_blank">Ansible Variable Precedence</a></p>
 </li>
 </ul>
 </div>
 </li>
 <li>
-<p><a href="https://galaxy.ansible.com/" target="_blank" rel="noopener">Ansible Galaxy</a></p>
+<p><a href="https://galaxy.ansible.com/" target="_blank">Ansible Galaxy</a></p>
 </li>
 <li>
 <p>Comprehensive <a href="https://www.jeffgeerling.com/blog/2020/ansible-101-jeff-geerling-youtube-streaming-series">Ansible 101</a> video series by Jeff Geerling</p>
