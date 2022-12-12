@@ -5,7 +5,17 @@
     <link>https://chuck-alt-delete.github.io/</link>
     <description>Recent content on Chuck Alt Delete</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Mon, 07 Nov 2022 08:00:00 -0700</lastBuildDate><atom:link href="https://chuck-alt-delete.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 11 Dec 2022 14:32:21 -0800</lastBuildDate><atom:link href="https://chuck-alt-delete.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>What is an API?</title>
+      <link>https://chuck-alt-delete.github.io/posts/what-is-an-api/</link>
+      <pubDate>Sun, 11 Dec 2022 14:32:21 -0800</pubDate>
+      
+      <guid>https://chuck-alt-delete.github.io/posts/what-is-an-api/</guid>
+      <description>Tip I originally wrote this for https://confluent.io/learn/api, but I wanted to host a version of it on my own blog. Introduction API stands for Application Programming Interface, which allows applications to communicate with one another. In the following image, imagine an app on the left is trying to communicate with the app on the right:
+The key idea is the app on the left doesn’t need to know the details about how the other application works; it only needs to know about how to use the API.</description>
+    </item>
+    
     <item>
       <title>First Day at Materialize</title>
       <link>https://chuck-alt-delete.github.io/posts/first-day-at-materialize/</link>
