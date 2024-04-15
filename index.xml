@@ -4,56 +4,56 @@
     <title>Chuck Alt Delete</title>
     <link>https://chuck-alt-delete.github.io/</link>
     <description>Recent content on Chuck Alt Delete</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Sun, 11 Dec 2022 14:32:21 -0800</lastBuildDate><atom:link href="https://chuck-alt-delete.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <generator>Hugo -- 0.124.1</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 15 Apr 2024 15:00:04 -0700</lastBuildDate>
+    <atom:link href="https://chuck-alt-delete.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Sunpower</title>
+      <link>https://chuck-alt-delete.github.io/posts/sunpower/</link>
+      <pubDate>Mon, 15 Apr 2024 15:00:04 -0700</pubDate>
+      <guid>https://chuck-alt-delete.github.io/posts/sunpower/</guid>
+      <description>Sunpower Stats I have a MySunPower system, and I love looking at my data. However, the app is not as flexible a I want it to be. It only lets you see a graph of energy usage/production between two points in time. But I want to answer questions like “how has my usage/production been trending in the month of February over the last several years” or “what is the distribution of usage/production for the hour of 4-5pm” or &amp;ldquo;how does the last 4 months of usage compare to the same period the previous year&amp;rdquo;.</description>
+    </item>
     <item>
       <title>What is an API?</title>
       <link>https://chuck-alt-delete.github.io/posts/what-is-an-api/</link>
       <pubDate>Sun, 11 Dec 2022 14:32:21 -0800</pubDate>
-      
       <guid>https://chuck-alt-delete.github.io/posts/what-is-an-api/</guid>
       <description>Tip I originally wrote this for https://confluent.io/learn/api, but I wanted to host a version of it on my own blog. Introduction API stands for Application Programming Interface, which allows applications to communicate with one another. In the following image, imagine an app on the left is trying to communicate with the app on the right:
 The key idea is the app on the left doesn’t need to know the details about how the other application works; it only needs to know about how to use the API.</description>
     </item>
-    
     <item>
       <title>First Day at Materialize</title>
       <link>https://chuck-alt-delete.github.io/posts/first-day-at-materialize/</link>
       <pubDate>Mon, 07 Nov 2022 08:00:00 -0700</pubDate>
-      
       <guid>https://chuck-alt-delete.github.io/posts/first-day-at-materialize/</guid>
       <description>Every so often, I decide to turn my life upside down. A bit over a week ago, I made this announcement:
 📢Anouncement📢
 Surprising even myself, I have decided to move on from @confluentinc and this will be my last week. Confluent is an amazing company, and in particular, @jwfbean , David Shook, and Maygol Kananizadeh have been such amazing teammates. 1/3
 &amp;mdash; Chuck Larrieu Casias (@MrLarrieu) October 24, 2022 But why leave a great company (which, by the way, just beat expectations for the 6th consecutive quarter, despite the recession)?</description>
     </item>
-    
     <item>
       <title>Technical Marketing at Confluent</title>
       <link>https://chuck-alt-delete.github.io/posts/technical-marketing/</link>
       <pubDate>Tue, 30 Nov 2021 09:28:03 -0800</pubDate>
-      
       <guid>https://chuck-alt-delete.github.io/posts/technical-marketing/</guid>
       <description>I&amp;rsquo;m really excited to share that on Monday, December 6, I&amp;rsquo;ll be joining the technical marketing team at Confluent!
 Goodbye, Curriculum Development I&amp;rsquo;ve had an amazing time learning and teaching data in motion as a curriculum developer in Confluent&amp;rsquo;s Education organization. I put a lot of energy into building curriculum development almost from the ground up, and it&amp;rsquo;s amazing to see the seeds I&amp;rsquo;ve planted grow into formidable saplings.
 Reflecting on my time in curriculum development, here are a couple of things I&amp;rsquo;m proud of:</description>
     </item>
-    
     <item>
       <title>Fun with Ansible&#39;s Docker Connection</title>
       <link>https://chuck-alt-delete.github.io/posts/ansible-docker/</link>
       <pubDate>Tue, 14 Sep 2021 10:46:35 -0700</pubDate>
-      
       <guid>https://chuck-alt-delete.github.io/posts/ansible-docker/</guid>
       <description>Introduction This lab is modified from one of my courses over at Confluent Education. The course is about using Confluent’s Ansible playbooks, but I had so much fun setting up the lab environment that I thought others would too. This lab environment is cool because you can simulate your own Virtual Private Cloud locally using Ansible’s Docker connection.
 The key to making this work is to use Jeff Geerling’s docker-&amp;lt;distro&amp;gt;-ansible Docker images and mounting the /sys/fs/cgroup into the container.</description>
     </item>
-    
     <item>
       <title>Learning DynamoDB</title>
       <link>https://chuck-alt-delete.github.io/posts/dynamo-presentation/</link>
       <pubDate>Tue, 03 Aug 2021 10:46:35 -0700</pubDate>
-      
       <guid>https://chuck-alt-delete.github.io/posts/dynamo-presentation/</guid>
       <description>Foreword From 2021 A while ago, I listened to an amazing podcast episode about DynamoDB decided to do one of AWS’s DynamoDB hands-on tutorials and create a little presentation about what I learned to share at a meetup.
 Enjoy!
@@ -63,42 +63,32 @@ Describe the importance of partitioning in DynamoDB
 Non-Work Facts About Me! Chuck
 My first job was at a doggy daycare</description>
     </item>
-    
     <item>
       <title>How to prepare for your DevOps Interview</title>
       <link>https://chuck-alt-delete.github.io/posts/devops-interview/</link>
       <pubDate>Tue, 27 Jul 2021 21:42:46 -0700</pubDate>
-      
       <guid>https://chuck-alt-delete.github.io/posts/devops-interview/</guid>
       <description>Foreword from 2021 I wrote this post for Insight Data Science in 2019. I&amp;rsquo;ve updated it a tiny bit, but it&amp;rsquo;s mostly the same. It was published on Dzone and the Insight Data Science blog:
 https://dzone.com/articles/how-to-prepare-for-your-devops-interview (40k views!) https://blog.insightdatascience.com/devops-interview-prep-guide-8cd3dc60e587 Introduction Motivation is a great start, but you&amp;rsquo;ll need the discipline to prepare effectively. I&amp;rsquo;ve written this guide to help you develop a disciplined interview preparation routine. Interviewing can really suck - it&amp;rsquo;s random and can make you feel bad about yourself.</description>
     </item>
-    
     <item>
       <title>Hello, World!</title>
       <link>https://chuck-alt-delete.github.io/posts/hello-world/</link>
       <pubDate>Fri, 23 Jul 2021 18:54:05 -0700</pubDate>
-      
       <guid>https://chuck-alt-delete.github.io/posts/hello-world/</guid>
       <description>This is the first post for Chuck+Alt+Delete! Welcome!
 This site has two purposes:
 &amp;ldquo;learn in public&amp;rdquo; through blog posts host my professional portfolio Learn in Public I was inspired by the #LearnInPublic hashtag on twitter. Learning in public makes one feel vulnerable, but the upsides in terms of community and learning can be tremendous. Even this post might evolve over time. This is a place for rough draft thinking.
 Portfolio Hop over to my portfolio!</description>
     </item>
-    
     <item>
       <title>Portfolio</title>
       <link>https://chuck-alt-delete.github.io/posts/portfolio/</link>
       <pubDate>Fri, 23 Jul 2021 18:54:05 -0700</pubDate>
-      
       <guid>https://chuck-alt-delete.github.io/posts/portfolio/</guid>
-      <description>Most of my work these last few years has lived in private repositories, so I&amp;rsquo;ve created this site to do more &amp;ldquo;learning in public.&amp;rdquo; I will keep this page updated with exemplars of my work.
-Technical Marketing Assets As a Technical Marketing Manager at Confluent, I create and review blogs, whitepapers, demos, and videos. Here are a couple of assets to highlight:
-SIEM Optimization
-I heavily refactored a SIEM Optimization demo created by our enterprise sales engineers I added self-paced learning modules and executive brief documentation I added 0-setup, 1-click deployment with Gitpod (click here to run demo in your browser) Demo Repo Confluent Platform Demo</description>
+      <description>This page displays exemplars of my work.
+Note Any of this content may have been modified or deleted since being recorded here. Field Engineering Assets As a Field Engineer at Materialize, I help folks find success using Materialize, a Postgres-compatible operational data warehouse that incrementally materializes and serves even the most complex joins and aggregations, always up-to-date. Here are a couple of assets to highlight:
+I wrote When to Use Indexes and Materialized Views, which is the first and most highly emphasized resource we share with all new users.</description>
     </item>
-    
-    
-    
   </channel>
 </rss>
